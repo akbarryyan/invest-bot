@@ -25,6 +25,11 @@ export interface CreateUserRequest {
   last_name?: string;
   referral_code: string;
   referred_by?: string;
+  // Optional fields allowed on create for admin panel convenience
+  balance?: number;
+  total_profit?: number;
+  referral_bonus?: number;
+  is_active?: boolean;
 }
 
 export interface UpdateUserRequest {
@@ -35,6 +40,9 @@ export interface UpdateUserRequest {
   total_profit?: number;
   referral_bonus?: number;
   is_active?: boolean;
+  // Allow updating referral metadata if needed
+  referral_code?: string;
+  referred_by?: string;
 }
 
 // Package Types
