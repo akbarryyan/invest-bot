@@ -19,16 +19,16 @@ const Modal: React.FC<ModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity"
+    <div className="fixed inset-0 z-50">
+      {/* Backdrop - frosted glass blur over entire page including header */}
+      <div
+        className="fixed inset-0 bg-white/30 backdrop-blur-md backdrop-saturate-150 transition-opacity"
         onClick={onClose}
       />
-      
-      {/* Modal */}
-      <div className="flex min-h-full items-center justify-center p-4">
-        <div className={`relative w-full ${sizeClasses[size]} transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all`}>
+
+      {/* Modal - perfectly centered */}
+      <div className="relative flex min-h-screen items-center justify-center p-4">
+        <div className={`relative w-full ${sizeClasses[size]} transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all`}> 
           {/* Header */}
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
