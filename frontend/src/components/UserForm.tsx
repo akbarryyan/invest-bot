@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import type { User, CreateUserRequest, UpdateUserRequest, UserFormProps } from '../types';
+import type { CreateUserRequest, UpdateUserRequest, UserFormProps } from '../types';
 
 const UserForm: React.FC<UserFormProps> = ({ 
   user, 
@@ -95,14 +95,8 @@ const UserForm: React.FC<UserFormProps> = ({
     onSubmit(formData);
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
+  // Helper reserved for future use
+  const formatCurrency = (_amount: number) => '';
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">

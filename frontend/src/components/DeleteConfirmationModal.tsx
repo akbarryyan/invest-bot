@@ -1,7 +1,7 @@
 import React from 'react';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import Modal from './Modal';
-import type { User, UserDeleteConfirmationModalProps } from '../types';
+import type { UserDeleteConfirmationModalProps } from '../types';
 
 const DeleteConfirmationModal: React.FC<UserDeleteConfirmationModalProps> = ({
   isOpen,

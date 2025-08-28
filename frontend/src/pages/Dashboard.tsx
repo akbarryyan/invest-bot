@@ -139,18 +139,8 @@ const Dashboard: React.FC = () => {
     }
   ];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-      case 'pending':
-        return 'bg-amber-100 text-amber-800 border-amber-200';
-      case 'failed':
-        return 'bg-red-100 text-red-800 border-red-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
+  // reserved helper for future dashboard status badges
+  const getStatusColor = (_status: string) => 'bg-gray-100 text-gray-800 border-gray-200';
 
   return (
     <div className="space-y-8">

@@ -1,20 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   UsersIcon, 
   MagnifyingGlassIcon,
   FunnelIcon,
   PlusIcon,
-  EyeIcon,
   PencilIcon,
   TrashIcon,
   CheckCircleIcon,
   XCircleIcon,
-  ExclamationTriangleIcon,
   EllipsisVerticalIcon,
-  PhoneIcon,
-  EnvelopeIcon,
-  MapPinIcon,
-  CalendarIcon,
   CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
 import Modal from '../components/Modal';
