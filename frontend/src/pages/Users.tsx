@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   UsersIcon, 
   MagnifyingGlassIcon,
@@ -20,118 +20,35 @@ import {
 import Modal from '../components/Modal';
 import UserForm from '../components/UserForm';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
+import { useUsers } from '../hooks/useUsers';
 import type { User, CreateUserRequest, UpdateUserRequest, UserFilters } from '../types';
 
 const Users: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<UserFilters['status']>('all');
   
-  // Modal states
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  
-  // Loading states
-  const [isLoading, setIsLoading] = useState(false);
-  const [isCreateLoading, setIsCreateLoading] = useState(false);
-  const [isUpdateLoading, setIsUpdateLoading] = useState(false);
-  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
 
-  // Mock data untuk users (akan diganti dengan API call)
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: 1,
-      telegram_id: 123456789,
-      username: 'john_doe',
-      first_name: 'John',
-      last_name: 'Doe',
-      balance: 2500000,
-      total_profit: 750000,
-      referral_code: 'JOHN123',
-      referred_by: 'ADMIN001',
-      referral_bonus: 50000,
-      is_active: true,
-      created_at: '2024-01-15T00:00:00Z',
-      updated_at: '2024-01-20T14:30:00Z'
-    },
-    {
-      id: 2,
-      telegram_id: 987654321,
-      username: 'jane_smith',
-      first_name: 'Jane',
-      last_name: 'Smith',
-      balance: 1800000,
-      total_profit: 450000,
-      referral_code: 'JANE456',
-      referred_by: 'JOHN123',
-      referral_bonus: 30000,
-      is_active: true,
-      created_at: '2024-01-10T00:00:00Z',
-      updated_at: '2024-01-20T16:45:00Z'
-    },
-    {
-      id: 3,
-      telegram_id: 555666777,
-      username: 'mike_johnson',
-      first_name: 'Mike',
-      last_name: 'Johnson',
-      balance: 500000,
-      total_profit: 150000,
-      referral_code: 'MIKE789',
-      referred_by: undefined,
-      referral_bonus: 0,
-      is_active: false,
-      created_at: '2024-01-18T00:00:00Z',
-      updated_at: '2024-01-19T09:15:00Z'
-    },
-    {
-      id: 4,
-      telegram_id: 111222333,
-      username: 'sarah_wilson',
-      first_name: 'Sarah',
-      last_name: 'Wilson',
-      balance: 0,
-      total_profit: 300000,
-      referral_code: 'SARAH012',
-      referred_by: 'JANE456',
-      referral_bonus: 20000,
-      is_active: false,
-      created_at: '2024-01-05T00:00:00Z',
-      updated_at: '2024-01-15T11:20:00Z'
-    },
-    {
-      id: 5,
-      telegram_id: 444555666,
-      username: 'david_brown',
-      first_name: 'David',
-      last_name: 'Brown',
-      balance: 750000,
-      total_profit: 200000,
-      referral_code: 'DAVID345',
-      referred_by: 'MIKE789',
-      referral_bonus: 10000,
-      is_active: false,
-      created_at: '2024-01-12T00:00:00Z',
-      updated_at: '2024-01-18T13:40:00Z'
-    },
-    {
-      id: 6,
-      telegram_id: 777888999,
-      username: 'lisa_anderson',
-      first_name: 'Lisa',
-      last_name: 'Anderson',
-      balance: 3200000,
-      total_profit: 1200000,
-      referral_code: 'LISA678',
-      referred_by: 'ADMIN001',
-      referral_bonus: 80000,
-      is_active: true,
-      created_at: '2024-01-08T00:00:00Z',
-      updated_at: '2024-01-20T10:25:00Z'
-    }
-  ]);
+  // Use custom hook for API calls
+  const {
+    users,
+    stats,
+    isLoading,
+    isCreating,
+    isUpdating,
+    isDeleting,
+    error,
+    pagination,
+    fetchUsers,
+    createUser,
+    updateUser,
+    deleteUser,
+    clearError,
+    } = useUsers();
 
   const getStatusColor = (isActive: boolean) => {
     return isActive 
@@ -176,10 +93,11 @@ const Users: React.FC = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const stats = [
+  // Stats for display
+  const displayStats = [
     {
       name: 'Total Users',
-      value: users.length.toString(),
+      value: stats.total_users.toString(),
       change: '+12.5%',
       changeType: 'increase',
       icon: UsersIcon,
@@ -187,7 +105,7 @@ const Users: React.FC = () => {
     },
     {
       name: 'Active Users',
-      value: users.filter(u => u.is_active).length.toString(),
+      value: stats.active_users.toString(),
       change: '+8.2%',
       changeType: 'increase',
       icon: CheckCircleIcon,
@@ -195,7 +113,7 @@ const Users: React.FC = () => {
     },
     {
       name: 'Total Balance',
-      value: formatCurrency(users.reduce((sum, user) => sum + user.balance, 0)),
+      value: formatCurrency(stats.total_balance),
       change: '+23.1%',
       changeType: 'increase',
       icon: CurrencyDollarIcon,
@@ -214,37 +132,14 @@ const Users: React.FC = () => {
   // CRUD Handlers
   const handleCreateUser = async (data: CreateUserRequest | UpdateUserRequest) => {
     if ('telegram_id' in data && 'referral_code' in data) {
-      setIsCreateLoading(true);
-      try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const createData = data as CreateUserRequest;
-        const newUser: User = {
-          id: Math.max(...users.map(u => u.id)) + 1,
-          telegram_id: createData.telegram_id,
-          username: createData.username,
-          first_name: createData.first_name,
-          last_name: createData.last_name,
-          balance: 0,
-          total_profit: 0,
-          referral_code: createData.referral_code,
-          referred_by: createData.referred_by,
-          referral_bonus: 0,
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        
-        setUsers(prev => [...prev, newUser]);
+      const createData = data as CreateUserRequest;
+      const newUser = await createUser(createData);
+      
+      if (newUser) {
         setIsCreateModalOpen(false);
         
         // Show success message (you can add a toast notification here)
         console.log('User created successfully');
-      } catch (error) {
-        console.error('Error creating user:', error);
-      } finally {
-        setIsCreateLoading(false);
       }
     }
   };
@@ -252,50 +147,28 @@ const Users: React.FC = () => {
   const handleUpdateUser = async (data: CreateUserRequest | UpdateUserRequest) => {
     if (!selectedUser) return;
     
-    setIsUpdateLoading(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const updatedUser: User = {
-        ...selectedUser,
-        ...data,
-        updated_at: new Date().toISOString()
-      };
-      
-      setUsers(prev => prev.map(user => 
-        user.id === selectedUser.id ? updatedUser : user
-      ));
+    const updatedUser = await updateUser(selectedUser.id, data as UpdateUserRequest);
+    
+    if (updatedUser) {
       setIsEditModalOpen(false);
       setSelectedUser(null);
       
       // Show success message
       console.log('User updated successfully');
-    } catch (error) {
-      console.error('Error updating user:', error);
-    } finally {
-      setIsUpdateLoading(false);
     }
   };
 
   const handleDeleteUser = async () => {
     if (!selectedUser) return;
     
-    setIsDeleteLoading(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setUsers(prev => prev.filter(user => user.id !== selectedUser.id));
+    const success = await deleteUser(selectedUser.id);
+    
+    if (success) {
       setIsDeleteModalOpen(false);
       setSelectedUser(null);
       
       // Show success message
       console.log('User deleted successfully');
-    } catch (error) {
-      console.error('Error deleting user:', error);
-    } finally {
-      setIsDeleteLoading(false);
     }
   };
 
@@ -340,7 +213,7 @@ const Users: React.FC = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
+        {displayStats.map((stat) => (
           <div key={stat.name} className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-105 group">
             <div className="flex items-center justify-between mb-4">
               <div className={`p-3 rounded-2xl bg-gradient-to-r ${stat.color} shadow-lg group-hover:shadow-xl transition-all duration-300`}>
@@ -386,7 +259,7 @@ const Users: React.FC = () => {
               <FunnelIcon className="w-5 h-5 text-gray-500" />
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+                onChange={(e) => setStatusFilter(e.target.value as UserFilters['status'])}
                 className="px-4 py-2 border-2 border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#536895] focus:border-[#536895] transition-all duration-200"
               >
                 <option value="all">All Status</option>
@@ -611,7 +484,7 @@ const Users: React.FC = () => {
           mode="create"
           onSubmit={handleCreateUser}
           onCancel={() => setIsCreateModalOpen(false)}
-          isLoading={isCreateLoading}
+                          isLoading={isCreating}
         />
       </Modal>
 
@@ -633,7 +506,7 @@ const Users: React.FC = () => {
             setIsEditModalOpen(false);
             setSelectedUser(null);
           }}
-          isLoading={isUpdateLoading}
+                          isLoading={isUpdating}
         />
       </Modal>
 
@@ -646,7 +519,7 @@ const Users: React.FC = () => {
         }}
         onConfirm={handleDeleteUser}
         user={selectedUser}
-        isLoading={isDeleteLoading}
+                    isLoading={isDeleting}
       />
     </div>
   );
