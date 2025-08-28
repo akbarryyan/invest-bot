@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import type { ModalProps } from '../types';
 
@@ -18,17 +19,17 @@ const Modal: React.FC<ModalProps> = ({
     xl: 'max-w-4xl',
   };
 
-  return (
-    <div className="fixed inset-0 z-50">
-      {/* Backdrop - frosted glass blur over entire page including header */}
+  const modalContent = (
+    <div className="fixed inset-0 z-[2147483646]">
+      {/* Backdrop - ensure it sits above header (very high z-index) */}
       <div
-        className="fixed inset-0 bg-white/30 backdrop-blur-md backdrop-saturate-150 transition-opacity"
+        className="fixed inset-0 z-[2147483646] bg-white/40 backdrop-blur-xl backdrop-saturate-150"
         onClick={onClose}
       />
 
-      {/* Modal - perfectly centered */}
-      <div className="relative flex min-h-screen items-center justify-center p-4">
-        <div className={`relative w-full ${sizeClasses[size]} transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all`}> 
+      {/* Modal - slightly above vertical center */}
+      <div className="fixed top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 z-[2147483647] w-full">
+        <div className={`relative mx-auto w-full ${sizeClasses[size]} transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all`}> 
           {/* Header */}
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
@@ -48,6 +49,9 @@ const Modal: React.FC<ModalProps> = ({
       </div>
     </div>
   );
+
+  // Render with portal to escape any parent stacking context (ensures header is blurred/overlaid)
+  return createPortal(modalContent, document.body);
 };
 
 export default Modal;
