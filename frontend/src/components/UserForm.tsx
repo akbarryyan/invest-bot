@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, CreateUserRequest, UpdateUserRequest } from '../types';
+import type { User, CreateUserRequest, UpdateUserRequest } from '../types';
 
 interface UserFormProps {
   user?: User;
