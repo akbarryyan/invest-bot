@@ -23,7 +23,7 @@ const Modal: React.FC<ModalProps> = ({
     <div className="fixed inset-0 z-[2147483646]">
       {/* Backdrop - ensure it sits above header (very high z-index) */}
       <div
-        className="fixed inset-0 z-[2147483646] bg-white/40 backdrop-blur-xl backdrop-saturate-150"
+        className="fixed inset-0 z-[2147483646] bg-white/20 backdrop-blur-md backdrop-saturate-100"
         onClick={onClose}
       />
 
