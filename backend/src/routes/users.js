@@ -67,6 +67,13 @@ router.get('/', [
 
     // Get users with pagination
     const result = await userModel.findAll(options);
+    
+    console.log('Route result:', result);
+    console.log('Sending response:', {
+      message: 'Users retrieved successfully',
+      data: result.users || [],
+      pagination: result.pagination
+    });
 
     res.json({
       message: 'Users retrieved successfully',

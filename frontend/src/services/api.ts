@@ -64,7 +64,7 @@ export const userApi = {
     const params = new URLSearchParams();
     
     if (filters?.search) params.append('search', filters.search);
-    if (filters?.status && filters.status !== 'all') params.append('status', filters.status);
+    if (filters?.status && filters.status !== 'all') params.append('is_active', filters.status === 'active' ? 'true' : 'false');
     if (filters?.min_balance) params.append('min_balance', filters.min_balance.toString());
     if (filters?.max_balance) params.append('max_balance', filters.max_balance.toString());
     if (filters?.sort_by) params.append('sort_by', filters.sort_by);
@@ -73,8 +73,20 @@ export const userApi = {
     params.append('page', page.toString());
     params.append('limit', limit.toString());
 
-    const response = await apiRequest<PaginatedResponse<User>>(`/users?${params.toString()}`);
-    return response.data!;
+    console.log('API Request URL:', `/users?${params.toString()}`);
+    const response = await apiRequest<any>(`/users?${params.toString()}`);
+    console.log('API Response:', response);
+    
+    // Backend mengirim { message, data: [...], pagination: {...} }
+    // Kita perlu mengembalikan { data: [...], pagination: {...} }
+    if (response.data) {
+      return {
+        data: response.data,
+        pagination: response.data.pagination || { page: 1, limit: 10, total: 0, total_pages: 1 }
+      };
+    }
+    
+    return { data: [], pagination: { page: 1, limit: 10, total: 0, total_pages: 1 } };
   },
 
   // Get user by ID
@@ -121,7 +133,12 @@ export const userApi = {
       total_balance: number;
       inactive_users: number;
     }>('/users/stats');
-    return response.data!;
+    return response.data || {
+      total_users: 0,
+      active_users: 0,
+      total_balance: 0,
+      inactive_users: 0,
+    };
   },
 };
 

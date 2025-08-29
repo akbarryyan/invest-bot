@@ -159,7 +159,6 @@ export interface AdminUser {
 
 // API Response Types
 export interface ApiResponse<T = any> {
-  success: boolean;
   data?: T;
   message?: string;
   error?: string;
@@ -173,7 +172,6 @@ export interface PaginatedResponse<T> {
     total: number;
     total_pages: number;
   };
-  message?: string;
 }
 
 export interface ApiError {

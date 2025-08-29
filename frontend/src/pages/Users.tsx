@@ -45,6 +45,9 @@ const Users: React.FC = () => {
     clearError,
     } = useUsers();
 
+  // Debug log untuk melihat state
+  console.log('Users state:', { users, stats, isLoading, error, pagination });
+
   const getStatusColor = (isActive: boolean) => {
     return isActive 
       ? 'bg-emerald-100 text-emerald-800 border-emerald-200'

@@ -81,9 +81,22 @@ export const useUsers = (): UseUsersReturn => {
       const response = await userApi.getUsers(filters, page, pagination.limit);
       
       // Handle response data safely
+      console.log('API Response:', response);
       if (response && response.data) {
-        setUsers(response.data);
+        // Convert database data types to frontend types
+        const convertedUsers = response.data.map(user => ({
+          ...user,
+          is_active: Boolean(user.is_active), // Convert 1/0 to true/false
+          balance: parseFloat(user.balance || '0'),
+          total_profit: parseFloat(user.total_profit || '0'),
+          referral_bonus: parseFloat(user.referral_bonus || '0'),
+          telegram_id: parseInt(user.telegram_id)
+        }));
+        
+        console.log('Setting users:', convertedUsers);
+        setUsers(convertedUsers);
       } else {
+        console.log('No data in response, setting empty array');
         setUsers([]);
       }
       
@@ -123,6 +136,7 @@ export const useUsers = (): UseUsersReturn => {
   const fetchStats = useCallback(async () => {
     try {
       const statsData = await userApi.getUserStats();
+      console.log('Stats response:', statsData);
       setStats(statsData);
     } catch (err) {
       console.error('Error fetching user stats:', err);

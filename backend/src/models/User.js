@@ -60,6 +60,8 @@ class User {
         [...params, parseInt(limit), offset]
       );
       
+      console.log('Database query result:', { users, total, page, limit, offset });
+      
       connection.release();
       
       return {
