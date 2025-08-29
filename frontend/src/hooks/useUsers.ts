@@ -2,6 +2,7 @@
 // Handles user data, API calls, and state management
 
 import { useState, useEffect, useCallback } from 'react';
+import toast from 'react-hot-toast';
 import { userApi } from '../services/api';
 import type { User, CreateUserRequest, UpdateUserRequest, UserFilters, ApiError } from '../types';
 
@@ -152,7 +153,9 @@ export const useUsers = (): UseUsersReturn => {
       return newUser;
     } catch (err) {
       const apiError = err as ApiError;
-      setError(apiError.message || 'Failed to create user');
+      const errorMessage = apiError.message || 'Failed to create user';
+      setError(errorMessage);
+      toast.error(errorMessage);
       console.error('Error creating user:', apiError);
       return null;
     } finally {
@@ -179,7 +182,9 @@ export const useUsers = (): UseUsersReturn => {
       return updatedUser;
     } catch (err) {
       const apiError = err as ApiError;
-      setError(apiError.message || 'Failed to update user');
+      const errorMessage = apiError.message || 'Failed to update user';
+      setError(errorMessage);
+      toast.error(errorMessage);
       console.error('Error updating user:', apiError);
       return null;
     } finally {
@@ -204,7 +209,9 @@ export const useUsers = (): UseUsersReturn => {
       return true;
     } catch (err) {
       const apiError = err as ApiError;
-      setError(apiError.message || 'Failed to delete user');
+      const errorMessage = apiError.message || 'Failed to delete user';
+      setError(errorMessage);
+      toast.error(errorMessage);
       console.error('Error deleting user:', apiError);
       return false;
     } finally {

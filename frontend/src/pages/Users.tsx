@@ -11,6 +11,7 @@ import {
   EllipsisVerticalIcon,
   CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast';
 import Modal from '../components/Modal';
 import UserForm from '../components/UserForm';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
@@ -132,8 +133,11 @@ const Users: React.FC = () => {
       if (newUser) {
         setIsCreateModalOpen(false);
         
-        // Show success message (you can add a toast notification here)
-        console.log('User created successfully');
+        // Show success toast
+        toast.success('User created successfully! 🎉');
+        
+        // Refresh users list
+        await fetchUsers();
       }
     }
   };
@@ -147,8 +151,11 @@ const Users: React.FC = () => {
       setIsEditModalOpen(false);
       setSelectedUser(null);
       
-      // Show success message
-      console.log('User updated successfully');
+      // Show success toast
+      toast.success('User updated successfully! ✨');
+      
+      // Refresh users list
+      await fetchUsers();
     }
   };
 
@@ -161,8 +168,11 @@ const Users: React.FC = () => {
       setIsDeleteModalOpen(false);
       setSelectedUser(null);
       
-      // Show success message
-      console.log('User deleted successfully');
+      // Show success toast
+      toast.success('User deleted successfully! 🗑️');
+      
+      // Refresh users list
+      await fetchUsers();
     }
   };
 
