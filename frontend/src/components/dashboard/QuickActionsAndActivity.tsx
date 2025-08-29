@@ -3,7 +3,6 @@ import {
   UserPlusIcon, 
   CubeIcon, 
   ChartBarIcon,
-  ArrowUpIcon,
   ClockIcon,
   ChartBarIcon as TrendingUpIcon
 } from '@heroicons/react/24/outline';
