@@ -84,14 +84,29 @@ export const useUsers = (): UseUsersReturn => {
       console.log('API Response:', response);
       if (response && response.data) {
         // Convert database data types to frontend types
-        const convertedUsers = response.data.map(user => ({
-          ...user,
-          is_active: Boolean(user.is_active), // Convert 1/0 to true/false
-          balance: parseFloat(user.balance || '0'),
-          total_profit: parseFloat(user.total_profit || '0'),
-          referral_bonus: parseFloat(user.referral_bonus || '0'),
-          telegram_id: parseInt(user.telegram_id)
-        }));
+        const convertedUsers = response.data.map(user => {
+          // Helper function to safely convert to number
+          const safeParseFloat = (value: any): number => {
+            if (typeof value === 'number') return value;
+            if (typeof value === 'string') return parseFloat(value) || 0;
+            return 0;
+          };
+
+          const safeParseInt = (value: any): number => {
+            if (typeof value === 'number') return value;
+            if (typeof value === 'string') return parseInt(value) || 0;
+            return 0;
+          };
+
+          return {
+            ...user,
+            is_active: Boolean(user.is_active), // Convert 1/0 to true/false
+            balance: safeParseFloat(user.balance),
+            total_profit: safeParseFloat(user.total_profit),
+            referral_bonus: safeParseFloat(user.referral_bonus),
+            telegram_id: safeParseInt(user.telegram_id)
+          };
+        });
         
         console.log('Setting users:', convertedUsers);
         setUsers(convertedUsers);
