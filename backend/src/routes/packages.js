@@ -75,7 +75,8 @@ router.get('/', [
 
     // Build search and filter options
     const options = {
-      is_active: is_active !== undefined ? is_active === 'true' : undefined
+      // Default to active packages only if no is_active filter specified
+      is_active: is_active !== undefined ? is_active === 'true' : true
     };
 
     // Get packages with pagination
@@ -269,7 +270,7 @@ router.put('/:id', validateUpdatePackage, async (req, res) => {
 
 /**
  * DELETE /api/packages/:id
- * Delete package (soft delete by setting is_active to false)
+ * Delete package (hard delete from database)
  */
 router.delete('/:id', async (req, res) => {
   try {
@@ -285,12 +286,12 @@ router.delete('/:id', async (req, res) => {
       });
     }
 
-    // Soft delete by setting is_active to false
+    // Hard delete package from database
     await packageModel.delete(id);
 
     res.json({
       message: 'Package deleted successfully',
-      data: { id: package.id, is_active: false }
+      data: { id: package.id, deleted: true }
     });
 
   } catch (error) {

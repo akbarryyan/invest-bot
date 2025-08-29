@@ -159,6 +159,11 @@ export const packageApi = {
     if (filters?.sort_by) params.append('sort_by', filters.sort_by);
     if (filters?.sort_order) params.append('sort_order', filters.sort_order);
     
+    // Default to active packages only (if no status filter specified)
+    if (!filters?.status) {
+      params.append('is_active', 'true');
+    }
+    
     params.append('page', page.toString());
     params.append('limit', limit.toString());
 

@@ -96,8 +96,11 @@ export const usePackages = (): UsePackagesReturn => {
                  };
                });
                
-               console.log('Setting packages:', convertedPackages);
-               setPackages(convertedPackages);
+               // Filter out inactive packages (if using soft delete)
+               const activePackages = convertedPackages.filter(pkg => pkg.is_active);
+               
+               console.log('Setting packages:', activePackages);
+               setPackages(activePackages);
              } else {
                console.log('No data in response, setting empty array');
                setPackages([]);

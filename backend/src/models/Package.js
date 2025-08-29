@@ -169,13 +169,13 @@ class Package {
     }
   }
 
-  // Delete package (soft delete)
+  // Delete package (hard delete)
   async delete(id) {
     try {
       const connection = await this.getConnection();
       
       await connection.execute(
-        'UPDATE packages SET is_active = false, updated_at = NOW() WHERE id = ?',
+        'DELETE FROM packages WHERE id = ?',
         [id]
       );
       
