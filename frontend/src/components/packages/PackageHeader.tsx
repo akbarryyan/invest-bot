@@ -1,8 +1,11 @@
 import React from 'react';
 import { PlusIcon, CubeIcon } from '@heroicons/react/24/outline';
-import { Link } from 'react-router-dom';
 
-const PackageHeader: React.FC = () => {
+interface PackageHeaderProps {
+  onCreateClick: () => void;
+}
+
+const PackageHeader: React.FC<PackageHeaderProps> = ({ onCreateClick }) => {
   return (
     <div className="flex items-center justify-between mb-8">
       <div className="flex items-center space-x-4">
@@ -15,13 +18,13 @@ const PackageHeader: React.FC = () => {
         </div>
       </div>
       
-      <Link
-        to="/packages/create"
+      <button
+        onClick={onCreateClick}
         className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#536895] to-[#4a5f8a] text-white rounded-2xl hover:from-[#4a5f8a] hover:to-[#536895] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold"
       >
         <PlusIcon className="w-5 h-5 mr-2" />
         Add Package
-      </Link>
+      </button>
     </div>
   );
 };

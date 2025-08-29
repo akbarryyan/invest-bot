@@ -6,6 +6,10 @@ import type {
   CreateUserRequest, 
   UpdateUserRequest, 
   UserFilters,
+  Package,
+  CreatePackageRequest,
+  UpdatePackageRequest,
+  PackageFilters,
   ApiResponse, 
   PaginatedResponse,
   ApiError 
@@ -142,6 +146,70 @@ export const userApi = {
   },
 };
 
+// Package API Functions
+export const packageApi = {
+  // Get all packages with pagination and filters
+  getPackages: async (filters?: PackageFilters, page: number = 1, limit: number = 10): Promise<PaginatedResponse<Package>> => {
+    const params = new URLSearchParams();
+    
+    if (filters?.search) params.append('search', filters.search);
+    if (filters?.status && filters.status !== 'all') params.append('is_active', filters.status === 'active' ? 'true' : 'false');
+    if (filters?.min_price) params.append('min_price', filters.min_price.toString());
+    if (filters?.max_price) params.append('max_price', filters.max_price.toString());
+    if (filters?.sort_by) params.append('sort_by', filters.sort_by);
+    if (filters?.sort_order) params.append('sort_order', filters.sort_order);
+    
+    params.append('page', page.toString());
+    params.append('limit', limit.toString());
+
+    console.log('API Request URL:', `/packages?${params.toString()}`);
+    const response = await apiRequest<any>(`/packages?${params.toString()}`);
+    console.log('API Response:', response);
+    
+    // Backend mengirim { message, data: [...], pagination: {...} }
+    // Kita perlu mengembalikan { data: [...], pagination: {...} }
+    if (response.data) {
+      return {
+        data: response.data,
+        pagination: response.data.pagination || { page: 1, limit: 10, total: 0, total_pages: 1 }
+      };
+    }
+    
+    return { data: [], pagination: { page: 1, limit: 10, total: 0, total_pages: 1 } };
+  },
+
+  // Get package by ID
+  getPackageById: async (id: number): Promise<Package> => {
+    const response = await apiRequest<Package>(`/packages/${id}`);
+    return response.data!;
+  },
+
+  // Create new package
+  createPackage: async (packageData: CreatePackageRequest): Promise<Package> => {
+    const response = await apiRequest<Package>('/packages', {
+      method: 'POST',
+      body: JSON.stringify(packageData),
+    });
+    return response.data!;
+  },
+
+  // Update package
+  updatePackage: async (id: number, packageData: UpdatePackageRequest): Promise<Package> => {
+    const response = await apiRequest<Package>(`/packages/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(packageData),
+    });
+    return response.data!;
+  },
+
+  // Delete package
+  deletePackage: async (id: number): Promise<void> => {
+    await apiRequest<void>(`/packages/${id}`, {
+      method: 'DELETE',
+    });
+  },
+};
+
 // Dashboard API Functions
 export const dashboardApi = {
   // Get dashboard statistics
@@ -194,5 +262,6 @@ export const dashboardApi = {
 // Export default API client
 export default {
   users: userApi,
+  packages: packageApi,
   dashboard: dashboardApi,
 };
