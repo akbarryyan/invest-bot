@@ -254,7 +254,7 @@ router.put('/:id', validateUpdateUser, async (req, res) => {
 
 /**
  * DELETE /api/users/:id
- * Delete user (soft delete by setting is_active to false)
+ * Delete user permanently from database
  */
 router.delete('/:id', async (req, res) => {
   try {
@@ -270,12 +270,12 @@ router.delete('/:id', async (req, res) => {
       });
     }
 
-    // Soft delete by setting is_active to false
+    // Hard delete - permanently remove user from database
     await userModel.delete(id);
 
     res.json({
       message: 'User deleted successfully',
-      data: { id: user.id, is_active: false }
+      data: { id: user.id, deleted: true }
     });
 
   } catch (error) {

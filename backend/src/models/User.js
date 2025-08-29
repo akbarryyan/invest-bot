@@ -214,13 +214,14 @@ class User {
     }
   }
 
-  // Delete user (soft delete)
+  // Delete user permanently
   async delete(id) {
     try {
       const connection = await this.getConnection();
       
+      // Permanently delete user from database
       await connection.execute(
-        'UPDATE users SET is_active = false, updated_at = NOW() WHERE id = ?',
+        'DELETE FROM users WHERE id = ?',
         [id]
       );
       

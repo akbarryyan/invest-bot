@@ -39,10 +39,11 @@ const DeleteConfirmationModal: React.FC<UserDeleteConfirmationModalProps> = ({
         {/* Warning Message */}
         <div className="text-center">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Are you sure you want to delete this user?
+            Are you sure you want to permanently delete this user?
           </h3>
-          <p className="text-gray-600">
-            This action cannot be undone. All user data, transactions, and packages will be permanently deleted.
+          <p className="text-red-600 font-medium">
+            ⚠️ WARNING: This action will PERMANENTLY DELETE the user from the database. 
+            All user data, transactions, and packages will be lost forever and cannot be recovered.
           </p>
         </div>
 
