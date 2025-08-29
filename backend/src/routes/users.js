@@ -15,11 +15,13 @@ const validateCreateUser = [
   body('first_name').notEmpty().withMessage('First name is required'),
   body('username').optional(),
   body('last_name').optional(),
-  body('phone').optional(),
-  body('email').optional().isEmail().withMessage('Invalid email format'),
+  body('phone').notEmpty().withMessage('Phone is required'),
+  body('email').notEmpty().isEmail().withMessage('Email is required and must be valid'),
   body('balance').optional().isFloat({ min: 0 }).withMessage('Balance must be a positive number'),
-  body('referral_code').optional(),
+  body('total_profit').optional().isFloat({ min: 0 }).withMessage('Total profit must be a positive number'),
+  body('referral_code').notEmpty().withMessage('Referral code is required'),
   body('referred_by').optional().isString().withMessage('Referred by must be a string'),
+  body('referral_bonus').optional().isFloat({ min: 0 }).withMessage('Referral bonus must be a positive number'),
   body('is_active').optional().isBoolean().withMessage('Is active must be a boolean')
 ];
 
@@ -163,6 +165,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', validateCreateUser, async (req, res) => {
   try {
     console.log('Request body:', req.body);
+    console.log('Request headers:', req.headers);
     
     // Check validation errors
     const errors = validationResult(req);
