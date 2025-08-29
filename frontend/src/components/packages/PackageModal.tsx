@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { XMarkIcon, CubeIcon } from '@heroicons/react/24/outline';
 import type { Package, CreatePackageRequest, UpdatePackageRequest } from '../../types';
 
@@ -68,14 +69,17 @@ export const PackageModal: React.FC<PackageModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        {/* Background overlay */}
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose}></div>
+  const modalContent = (
+    <div className="fixed inset-0 z-[2147483646] overflow-hidden">
+      {/* Backdrop - ensure it sits above header (very high z-index) */}
+      <div
+        className="fixed inset-0 z-[2147483646] bg-white/10 backdrop-blur-sm backdrop-saturate-100"
+        onClick={onClose}
+      />
 
-        {/* Modal panel */}
-        <div className="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+      {/* Modal - slightly above vertical center */}
+      <div className="fixed top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 z-[2147483647] w-full">
+        <div className="relative mx-auto w-full max-w-2xl transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all max-h-[80vh]">
           {/* Header */}
           <div className="bg-gradient-to-r from-[#536895] to-[#4a5f8a] px-6 py-4">
             <div className="flex items-center justify-between">
@@ -96,8 +100,8 @@ export const PackageModal: React.FC<PackageModalProps> = ({
             </div>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="px-6 py-6 space-y-6">
+          {/* Form - Scrollable */}
+          <div className="px-6 py-6 space-y-6 overflow-y-auto max-h-[calc(80vh-120px)]">
             {/* Name */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
@@ -173,7 +177,7 @@ export const PackageModal: React.FC<PackageModalProps> = ({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor="daily_return" className="block text-sm font-medium text-gray-700 mb-2">
-                  Daily Return (%) *
+                  Daily Return (IDR) *
                 </label>
                 <input
                   type="number"
@@ -183,10 +187,9 @@ export const PackageModal: React.FC<PackageModalProps> = ({
                   onChange={handleInputChange}
                   required
                   min="0"
-                  max="100"
-                  step="0.01"
+                  step="1000"
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#536895] focus:border-[#536895] transition-all duration-200"
-                  placeholder="0.5"
+                  placeholder="0"
                 />
               </div>
               <div>
@@ -249,9 +252,12 @@ export const PackageModal: React.FC<PackageModalProps> = ({
                 )}
               </button>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>
   );
+
+  // Render with portal to escape any parent stacking context (ensures header is blurred/overlaid)
+  return createPortal(modalContent, document.body);
 };

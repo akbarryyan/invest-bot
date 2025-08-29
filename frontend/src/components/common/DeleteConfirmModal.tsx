@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { XMarkIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 interface DeleteConfirmModalProps {
@@ -20,14 +21,17 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        {/* Background overlay */}
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose}></div>
+  const modalContent = (
+    <div className="fixed inset-0 z-[2147483646] overflow-hidden">
+      {/* Backdrop - ensure it sits above header (very high z-index) */}
+      <div
+        className="fixed inset-0 z-[2147483646] bg-white/10 backdrop-blur-sm backdrop-saturate-100"
+        onClick={onClose}
+      />
 
-        {/* Modal panel */}
-        <div className="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      {/* Modal - slightly above vertical center */}
+      <div className="fixed top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 z-[2147483647] w-full">
+        <div className="relative mx-auto w-full max-w-lg transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all">
           {/* Header */}
           <div className="bg-red-600 px-6 py-4">
             <div className="flex items-center justify-between">
@@ -88,4 +92,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
       </div>
     </div>
   );
+
+  // Render with portal to escape any parent stacking context (ensures header is blurred/overlaid)
+  return createPortal(modalContent, document.body);
 };
