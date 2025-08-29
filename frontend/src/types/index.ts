@@ -16,6 +16,9 @@ export interface User {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  phone: string;
+  email: string;
+  last_activity: string;
 }
 
 export interface CreateUserRequest {
@@ -23,6 +26,8 @@ export interface CreateUserRequest {
   username?: string;
   first_name?: string;
   last_name?: string;
+  phone: string;
+  email: string;
   referral_code: string;
   referred_by?: string;
   // Optional fields allowed on create for admin panel convenience

@@ -78,17 +78,41 @@ export const useUsers = (): UseUsersReturn => {
     
     try {
       const response = await userApi.getUsers(filters, page, pagination.limit);
-      setUsers(response.data);
-      setPagination({
-        page: response.pagination.page,
-        limit: response.pagination.limit,
-        total: response.pagination.total,
-        total_pages: response.pagination.total_pages,
-      });
+      
+      // Handle response data safely
+      if (response && response.data) {
+        setUsers(response.data);
+      } else {
+        setUsers([]);
+      }
+      
+      // Handle pagination safely
+      if (response && response.pagination) {
+        setPagination({
+          page: response.pagination.page || page,
+          limit: response.pagination.limit || pagination.limit,
+          total: response.pagination.total || 0,
+          total_pages: response.pagination.total_pages || 1,
+        });
+      } else {
+        // Set default pagination if response doesn't have pagination
+        setPagination(prev => ({
+          ...prev,
+          page: page,
+          total: 0,
+          total_pages: 1,
+        }));
+      }
     } catch (err) {
-      const apiError = err as ApiError;
-      setError(apiError.message || 'Failed to fetch users');
-      console.error('Error fetching users:', apiError);
+      console.error('Error fetching users:', err);
+      setUsers([]);
+      setPagination(prev => ({
+        ...prev,
+        page: page,
+        total: 0,
+        total_pages: 1,
+      }));
+      setError('Failed to fetch users. Please try again later.');
     } finally {
       setIsLoading(false);
     }
@@ -100,9 +124,14 @@ export const useUsers = (): UseUsersReturn => {
       const statsData = await userApi.getUserStats();
       setStats(statsData);
     } catch (err) {
-      const apiError = err as ApiError;
-      console.error('Error fetching user stats:', apiError);
-      // Don't set error for stats as it's not critical
+      console.error('Error fetching user stats:', err);
+      // Set default stats on error
+      setStats({
+        total_users: 0,
+        active_users: 0,
+        total_balance: 0,
+        inactive_users: 0,
+      });
     }
   }, []);
 
@@ -185,8 +214,19 @@ export const useUsers = (): UseUsersReturn => {
 
   // Initial data fetch
   useEffect(() => {
-    fetchUsers();
-    fetchStats();
+    // Only fetch if backend is available
+    const initializeData = async () => {
+      try {
+        await Promise.all([
+          fetchUsers(),
+          fetchStats()
+        ]);
+      } catch (error) {
+        console.log('Backend not available yet, using default state');
+      }
+    };
+    
+    initializeData();
   }, [fetchUsers, fetchStats]);
 
   return {

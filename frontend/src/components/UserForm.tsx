@@ -15,6 +15,8 @@ const UserForm: React.FC<UserFormProps> = ({
           username: '',
           first_name: '',
           last_name: '',
+          phone: '',
+          email: '',
           referral_code: '',
           referred_by: '',
         }
@@ -81,6 +83,16 @@ const UserForm: React.FC<UserFormProps> = ({
       newErrors.last_name = 'Last name is required';
     }
 
+    if (mode === 'create') {
+      const createData = formData as CreateUserRequest;
+      if (!createData.phone) {
+        newErrors.phone = 'Phone is required';
+      }
+      if (!createData.email) {
+        newErrors.email = 'Email is required';
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -138,6 +150,48 @@ const UserForm: React.FC<UserFormProps> = ({
             className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#536895] focus:border-[#536895] transition-all duration-200"
             placeholder="Enter username"
           />
+        </div>
+
+        {/* Phone */}
+        <div>
+          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+            Phone *
+          </label>
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            value={(formData as CreateUserRequest).phone || ''}
+            onChange={handleChange}
+            className={`w-full px-4 py-3 border-2 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#536895] focus:border-[#536895] transition-all duration-200 ${
+              errors.phone ? 'border-red-300' : 'border-gray-200'
+            }`}
+            placeholder="Enter phone number"
+          />
+          {errors.phone && (
+            <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+          )}
+        </div>
+
+        {/* Email */}
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            Email *
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={(formData as CreateUserRequest).email || ''}
+            onChange={handleChange}
+            className={`w-full px-4 py-3 border-2 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#536895] focus:border-[#536895] transition-all duration-200 ${
+              errors.email ? 'border-red-300' : 'border-gray-200'
+            }`}
+            placeholder="Enter email address"
+          />
+          {errors.email && (
+            <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+          )}
         </div>
 
         {/* First Name */}

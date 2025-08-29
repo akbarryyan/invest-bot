@@ -73,7 +73,7 @@ const Users: React.FC = () => {
     });
   };
 
-  const filteredUsers = users.filter(user => {
+  const filteredUsers = (users || []).filter(user => {
     const matchesSearch = 
       user.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -91,7 +91,7 @@ const Users: React.FC = () => {
   const displayStats = [
     {
       name: 'Total Users',
-      value: stats.total_users.toString(),
+      value: (stats?.total_users || 0).toString(),
       change: '+12.5%',
       changeType: 'increase',
       icon: UsersIcon,
@@ -99,7 +99,7 @@ const Users: React.FC = () => {
     },
     {
       name: 'Active Users',
-      value: stats.active_users.toString(),
+      value: (stats?.active_users || 0).toString(),
       change: '+8.2%',
       changeType: 'increase',
       icon: CheckCircleIcon,
@@ -107,7 +107,7 @@ const Users: React.FC = () => {
     },
     {
       name: 'Total Balance',
-      value: formatCurrency(stats.total_balance),
+      value: formatCurrency(stats?.total_balance || 0),
       change: '+23.1%',
       changeType: 'increase',
       icon: CurrencyDollarIcon,
@@ -115,7 +115,7 @@ const Users: React.FC = () => {
     },
     {
       name: 'Inactive Users',
-      value: users.filter(u => !u.is_active).length.toString(),
+      value: (users || []).filter(u => !u.is_active).length.toString(),
       change: '-5.2%',
       changeType: 'decrease',
       icon: XCircleIcon,
