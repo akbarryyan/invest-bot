@@ -146,10 +146,31 @@ export const usePackages = (): UsePackagesReturn => {
     try {
       const newPackage = await packageApi.createPackage(packageData);
       
-      // Add new package to the list
-      setPackages(prev => [newPackage, ...prev]);
+      // Apply the same data conversion as in fetchPackages
+      const safeParseFloat = (value: any): number => {
+        if (typeof value === 'number') return value;
+        if (typeof value === 'string') return parseFloat(value) || 0;
+        return 0;
+      };
+
+      const safeParseInt = (value: any): number => {
+        if (typeof value === 'number') return value;
+        if (typeof value === 'string') return parseInt(value) || 0;
+        return 0;
+      };
+
+      const convertedPackage = {
+        ...newPackage,
+        is_active: Boolean(newPackage.is_active),
+        price: safeParseFloat(newPackage.price),
+        duration_days: safeParseInt(newPackage.duration_days),
+        daily_return: safeParseFloat(newPackage.daily_return_amount || newPackage.daily_return),
+      };
       
-      return newPackage;
+      // Add new package to the list
+      setPackages(prev => [convertedPackage, ...prev]);
+      
+      return convertedPackage;
     } catch (err) {
       const apiError = err as ApiError;
       const errorMessage = apiError.message || 'Failed to create package';
@@ -170,12 +191,33 @@ export const usePackages = (): UsePackagesReturn => {
     try {
       const updatedPackage = await packageApi.updatePackage(id, packageData);
       
+      // Apply the same data conversion as in fetchPackages
+      const safeParseFloat = (value: any): number => {
+        if (typeof value === 'number') return value;
+        if (typeof value === 'string') return parseFloat(value) || 0;
+        return 0;
+      };
+
+      const safeParseInt = (value: any): number => {
+        if (typeof value === 'number') return value;
+        if (typeof value === 'string') return parseInt(value) || 0;
+        return 0;
+      };
+
+      const convertedPackage = {
+        ...updatedPackage,
+        is_active: Boolean(updatedPackage.is_active),
+        price: safeParseFloat(updatedPackage.price),
+        duration_days: safeParseInt(updatedPackage.duration_days),
+        daily_return: safeParseFloat(updatedPackage.daily_return_amount || updatedPackage.daily_return),
+      };
+      
       // Update package in the list
       setPackages(prev => prev.map(pkg => 
-        pkg.id === id ? updatedPackage : pkg
+        pkg.id === id ? convertedPackage : pkg
       ));
       
-      return updatedPackage;
+      return convertedPackage;
     } catch (err) {
       const apiError = err as ApiError;
       const errorMessage = apiError.message || 'Failed to update package';

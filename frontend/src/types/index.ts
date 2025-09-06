@@ -58,6 +58,7 @@ export interface Package {
   price: number;
   duration_days: number;
   daily_return: number;
+  daily_return_amount?: number; // Backend field for compatibility
   image_url?: string;
   is_active: boolean;
   created_at: string;
