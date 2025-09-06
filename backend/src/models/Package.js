@@ -100,8 +100,8 @@ class Package {
       
       const [result] = await connection.execute(
         `INSERT INTO packages (
-          name, description, price, duration_days, daily_return_amount, image_url, is_active
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          name, description, price, duration_days, daily_return_amount, image_url, is_active, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
         [
           packageData.name,
           packageData.description || null,
