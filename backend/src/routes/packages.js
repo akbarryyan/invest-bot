@@ -12,15 +12,12 @@ const packageModel = new Package();
 // Validation middleware
 const validateCreatePackage = [
   body('name').notEmpty().withMessage('Package name is required'),
-  body('description').optional(),
+  body('description').notEmpty().withMessage('Description is required'),
   body('price').isFloat({ min: 0 }).withMessage('Price must be a positive number'),
   body('duration_days').isInt({ min: 1 }).withMessage('Duration must be at least 1 day'),
-  body('daily_return_percentage').isFloat({ min: 0, max: 100 }).withMessage('Daily return must be between 0 and 100'),
-  body('daily_return_amount').isFloat({ min: 0 }).withMessage('Daily return amount must be a positive number'),
-  body('total_return_percentage').isFloat({ min: 0, max: 1000 }).withMessage('Total return must be between 0 and 1000'),
-  body('image_url').optional().isURL().withMessage('Image URL must be a valid URL'),
-  body('is_active').optional().isBoolean().withMessage('Is active must be a boolean'),
-  body('max_purchases').optional().isInt({ min: 1 }).withMessage('Max purchases must be a positive integer')
+  body('daily_return').isFloat({ min: 0 }).withMessage('Daily return must be a positive number'),
+  body('image_url').optional(),
+  body('is_active').optional().isBoolean().withMessage('Is active must be a boolean')
 ];
 
 const validateUpdatePackage = [
@@ -28,12 +25,9 @@ const validateUpdatePackage = [
   body('description').optional(),
   body('price').optional().isFloat({ min: 0 }).withMessage('Price must be a positive number'),
   body('duration_days').optional().isInt({ min: 1 }).withMessage('Duration must be at least 1 day'),
-  body('daily_return_percentage').optional().isFloat({ min: 0, max: 100 }).withMessage('Daily return must be between 0 and 100'),
-  body('daily_return_amount').optional().isFloat({ min: 0 }).withMessage('Daily return amount must be a positive number'),
-  body('total_return_percentage').optional().isFloat({ min: 0, max: 1000 }).withMessage('Total return must be between 0 and 1000'),
-  body('image_url').optional().isURL().withMessage('Image URL must be a valid URL'),
-  body('is_active').optional().isBoolean().withMessage('Is active must be a boolean'),
-  body('max_purchases').optional().isInt({ min: 1 }).withMessage('Max purchases must be a positive integer')
+  body('daily_return').optional().isFloat({ min: 0 }).withMessage('Daily return must be a positive number'),
+  body('image_url').optional(),
+  body('is_active').optional().isBoolean().withMessage('Is active must be a boolean')
 ];
 
 /**
