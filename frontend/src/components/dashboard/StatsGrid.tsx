@@ -11,7 +11,7 @@ interface StatsGridProps {
     totalUsers: number;
     totalBalance: number;
     totalProfit: number;
-    activeUsers: number;
+    totalPackages: number;
   };
 }
 
@@ -73,9 +73,9 @@ const StatsGrid: React.FC<StatsGridProps> = ({ stats }) => {
       trend: 'Excellent performance'
     },
     {
-      title: 'Active Users',
-      value: formatNumber(stats.activeUsers),
-      change: '+5.7%',
+      title: 'Total Packages',
+      value: formatNumber(stats.totalPackages),
+      change: '+2.1%',
       changeType: 'positive' as const,
       icon: ChartBarIcon,
       color: 'from-orange-500 to-orange-600',
@@ -83,8 +83,8 @@ const StatsGrid: React.FC<StatsGridProps> = ({ stats }) => {
       textColor: 'text-orange-600',
       borderColor: 'border-orange-200',
       shadowColor: 'shadow-orange-500/20',
-      description: 'Currently active users',
-      trend: 'Stable engagement'
+      description: 'Available investment packages',
+      trend: 'Growing portfolio'
     }
   ];
 

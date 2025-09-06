@@ -6,9 +6,11 @@ import {
   ActivityChart
 } from '../components/dashboard';
 import { useUsers } from '../hooks/useUsers';
+import { usePackages } from '../hooks/usePackages';
 
 const Dashboard: React.FC = () => {
   const { users, stats: userStats, isLoading } = useUsers();
+  const { packages, isLoading: packagesLoading } = usePackages();
   const [currentTime, setCurrentTime] = useState<string>('');
 
   useEffect(() => {
@@ -58,7 +60,7 @@ const Dashboard: React.FC = () => {
           totalUsers: userStats?.total_users || 0,
           totalBalance: userStats?.total_balance || 0,
           totalProfit: 0, // TODO: Add total_profit to userStats
-          activeUsers: userStats?.active_users || 0
+          totalPackages: packages.length
         }}
       />
 
