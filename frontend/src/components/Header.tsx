@@ -9,7 +9,8 @@ import {
   CurrencyDollarIcon,
   ChartBarIcon,
   Cog6ToothIcon,
-  ArrowRightOnRectangleIcon
+  ArrowRightOnRectangleIcon,
+  ChevronDownIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../hooks/useAuth';
 import toast from 'react-hot-toast';
@@ -105,22 +106,41 @@ const Header: React.FC = () => {
                   <span className="text-gray-800 font-semibold">{user?.username || 'Admin'}</span>
                   <p className="text-xs text-gray-500 font-medium">Super Admin</p>
                 </div>
+                <ChevronDownIcon 
+                  className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${
+                    showUserMenu ? 'rotate-180' : ''
+                  }`} 
+                />
               </button>
 
               {/* Dropdown Menu */}
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
-                  <div className="px-4 py-2 border-b border-gray-100">
-                    <p className="text-sm font-medium text-gray-900">{user?.username || 'Admin'}</p>
-                    <p className="text-xs text-gray-500">{user?.email || 'admin@investbot.com'}</p>
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50 animate-in slide-in-from-top-2 duration-200">
+                  {/* User Info Header */}
+                  <div className="px-4 py-3 border-b border-gray-100 bg-gray-50 rounded-t-xl">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#536895] to-[#4a5f8a] flex items-center justify-center">
+                        <span className="text-white font-bold text-xs">
+                          {user?.username?.charAt(0).toUpperCase() || 'A'}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">{user?.username || 'Admin'}</p>
+                        <p className="text-xs text-gray-500">{user?.email || 'admin@investbot.com'}</p>
+                      </div>
+                    </div>
                   </div>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <ArrowRightOnRectangleIcon className="h-4 w-4 mr-3" />
-                    Logout
-                  </button>
+                  
+                  {/* Menu Items */}
+                  <div className="py-1">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200 group"
+                    >
+                      <ArrowRightOnRectangleIcon className="h-4 w-4 mr-3 group-hover:scale-110 transition-transform duration-200" />
+                      <span className="font-medium">Logout</span>
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
