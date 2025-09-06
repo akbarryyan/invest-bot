@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   CubeIcon, 
-  PlusIcon, 
-  PencilIcon, 
-  TrashIcon, 
-  EyeIcon,
-  EyeSlashIcon 
+  PlusIcon,
 } from '@heroicons/react/24/outline';
 import { PackageTable } from './PackageTable';
 import { PackageModal } from './PackageModal';

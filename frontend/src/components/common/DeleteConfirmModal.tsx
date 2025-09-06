@@ -31,61 +31,71 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 
       {/* Modal - slightly above vertical center */}
       <div className="fixed top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 z-[2147483647] w-full">
-        <div className="relative mx-auto w-full max-w-lg transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all">
-          {/* Header */}
-          <div className="bg-red-600 px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-2xl bg-white bg-opacity-20">
-                  <ExclamationTriangleIcon className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold text-white">
-                  {title}
-                </h3>
+        <div className="relative mx-auto w-full max-w-lg transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all max-h-[80vh]">
+          {/* Header - Sama seperti DeleteConfirmationModal.tsx */}
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 rounded-2xl bg-red-100">
+                <ExclamationTriangleIcon className="w-6 h-6 text-red-600" />
               </div>
-              <button
-                onClick={onClose}
-                className="text-white hover:text-gray-200 transition-colors"
-              >
-                <XMarkIcon className="w-6 h-6" />
-              </button>
+              <h3 className="text-lg font-semibold text-gray-900">
+                {title}
+              </h3>
             </div>
+            <button
+              onClick={onClose}
+              className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+            >
+              <XMarkIcon className="h-6 w-6" />
+            </button>
           </div>
 
-          {/* Content */}
-          <div className="px-6 py-6">
-            <div className="text-center">
-              <ExclamationTriangleIcon className="mx-auto h-12 w-12 text-red-600 mb-4" />
-              <p className="text-gray-700 mb-6">
-                {message}
-              </p>
-            </div>
+          {/* Content - Sama seperti DeleteConfirmationModal.tsx */}
+          <div className="px-6 py-4 overflow-y-auto max-h-[calc(80vh-120px)]">
+            <div className="space-y-6">
+              {/* Warning Icon */}
+              <div className="flex justify-center">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                  <ExclamationTriangleIcon className="w-8 h-8 text-red-600" />
+                </div>
+              </div>
 
-            {/* Buttons */}
-            <div className="flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={isLoading}
-                className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-2xl hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 font-semibold disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={onConfirm}
-                disabled={isLoading}
-                className="px-6 py-3 bg-red-600 text-white rounded-2xl hover:bg-red-700 transition-all duration-200 font-semibold disabled:opacity-50 flex items-center"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Deleting...
-                  </>
-                ) : (
-                  'Delete'
-                )}
-              </button>
+              {/* Warning Message */}
+              <div className="text-center">
+                <p className="text-gray-600">
+                  {message}
+                </p>
+                <p className="text-red-600 text-sm mt-2">
+                  This action cannot be undone.
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-2xl hover:bg-gray-50 font-semibold"
+                  disabled={isLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={onConfirm}
+                  className="px-6 py-3 bg-red-600 text-white rounded-2xl hover:bg-red-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <div className="flex items-center">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                      Deleting...
+                    </div>
+                  ) : (
+                    'Delete'
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
