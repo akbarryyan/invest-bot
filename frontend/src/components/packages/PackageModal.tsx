@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { XMarkIcon, CubeIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import type { Package, CreatePackageRequest, UpdatePackageRequest } from '../../types';
 
 interface PackageModalProps {
@@ -165,9 +165,6 @@ export const PackageModal: React.FC<PackageModalProps> = ({
           {/* Header - Sama seperti Modal.tsx */}
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-2xl bg-[#536895] bg-opacity-10">
-                <CubeIcon className="w-6 h-6 text-[#536895]" />
-              </div>
               <h3 className="text-lg font-semibold text-gray-900">
                 {mode === 'create' ? 'Create New Package' : 'Edit Package'}
               </h3>
