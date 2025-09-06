@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   BellIcon, 
   MagnifyingGlassIcon,
@@ -8,11 +8,38 @@ import {
   UsersIcon, 
   CurrencyDollarIcon,
   ChartBarIcon,
-  Cog6ToothIcon
+  Cog6ToothIcon,
+  ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
+import { useAuth } from '../hooks/useAuth';
+import toast from 'react-hot-toast';
 
 const Header: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  const handleLogout = () => {
+    logout();
+    toast.success('Logout berhasil!');
+    navigate('/login');
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: HomeIcon },
@@ -64,16 +91,38 @@ const Header: React.FC = () => {
             </button>
             
             {/* User Menu */}
-            <div className="relative">
-              <button className="flex items-center space-x-3 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#536895] hover:bg-gray-50 p-3 transition-all duration-200 group">
+            <div className="relative" ref={userMenuRef}>
+              <button 
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="flex items-center space-x-3 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#536895] hover:bg-gray-50 p-3 transition-all duration-200 group"
+              >
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#536895] to-[#4a5f8a] flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-200">
-                  <span className="text-white font-bold text-sm">A</span>
+                  <span className="text-white font-bold text-sm">
+                    {user?.username?.charAt(0).toUpperCase() || 'A'}
+                  </span>
                 </div>
                 <div className="hidden md:block text-left">
-                  <span className="text-gray-800 font-semibold">Admin</span>
+                  <span className="text-gray-800 font-semibold">{user?.username || 'Admin'}</span>
                   <p className="text-xs text-gray-500 font-medium">Super Admin</p>
                 </div>
               </button>
+
+              {/* Dropdown Menu */}
+              {showUserMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
+                  <div className="px-4 py-2 border-b border-gray-100">
+                    <p className="text-sm font-medium text-gray-900">{user?.username || 'Admin'}</p>
+                    <p className="text-xs text-gray-500">{user?.email || 'admin@investbot.com'}</p>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <ArrowRightOnRectangleIcon className="h-4 w-4 mr-3" />
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
