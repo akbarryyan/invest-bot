@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { XMarkIcon, CubeIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, CubeIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import type { Package, CreatePackageRequest, UpdatePackageRequest } from '../../types';
 
 interface PackageModalProps {
@@ -29,6 +29,10 @@ export const PackageModal: React.FC<PackageModalProps> = ({
     image_url: '',
   });
 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // Reset form when modal opens/closes or package changes
   useEffect(() => {
     if (isOpen) {
@@ -41,6 +45,7 @@ export const PackageModal: React.FC<PackageModalProps> = ({
           daily_return: packageData.daily_return,
           image_url: packageData.image_url || '',
         });
+        setPreviewUrl(packageData.image_url || '');
       } else {
         setFormData({
           name: '',
@@ -50,13 +55,54 @@ export const PackageModal: React.FC<PackageModalProps> = ({
           daily_return: 0,
           image_url: '',
         });
+        setPreviewUrl('');
+        setSelectedFile(null);
       }
     }
   }, [isOpen, mode, packageData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit(formData);
+    
+    // If there's a selected file, convert it to base64 and set as image_url
+    if (selectedFile) {
+      const base64 = await convertToBase64(selectedFile);
+      const submitData = {
+        ...formData,
+        image_url: base64
+      };
+      await onSubmit(submitData);
+    } else {
+      await onSubmit(formData);
+    }
+  };
+
+  const convertToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      
+      // Create preview URL
+      const preview = URL.createObjectURL(file);
+      setPreviewUrl(preview);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedFile(null);
+    setPreviewUrl('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -172,7 +218,7 @@ export const PackageModal: React.FC<PackageModalProps> = ({
                 </div>
               </div>
 
-              {/* Daily Return and Image URL Row */}
+              {/* Daily Return and Image Upload Row */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="daily_return" className="block text-sm font-medium text-gray-700 mb-2">
@@ -192,36 +238,55 @@ export const PackageModal: React.FC<PackageModalProps> = ({
                   />
                 </div>
                 <div>
-                  <label htmlFor="image_url" className="block text-sm font-medium text-gray-700 mb-2">
-                    Image URL
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Package Image
                   </label>
-                  <input
-                    type="url"
-                    id="image_url"
-                    name="image_url"
-                    value={formData.image_url}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#536895] focus:border-[#536895] transition-all duration-200"
-                    placeholder="https://example.com/image.jpg"
-                  />
+                  <div className="relative">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      id="image-upload"
+                    />
+                    <label
+                      htmlFor="image-upload"
+                      className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer hover:border-[#536895] hover:bg-gray-50 transition-all duration-200 flex items-center justify-center space-x-2"
+                    >
+                      <PhotoIcon className="w-5 h-5 text-gray-400" />
+                      <span className="text-sm text-gray-600">
+                        {selectedFile ? 'Change Image' : 'Upload Image'}
+                      </span>
+                    </label>
+                  </div>
                 </div>
               </div>
 
               {/* Image Preview */}
-              {formData.image_url && (
+              {previewUrl && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Image Preview
                   </label>
-                  <div className="w-32 h-32 border-2 border-gray-200 rounded-2xl overflow-hidden">
-                    <img
-                      src={formData.image_url}
-                      alt="Package preview"
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik02NCAzMkM3My42NzY5IDMyIDgxLjMzMzMgMzkuNjY2NyA4MS4zMzMzIDQ5LjMzMzNDODEuMzMzMyA1OSA3My42NzY5IDY2LjY2NjcgNjQgNjYuNjY2N0M1NC4zMjMxIDY2LjY2NjcgNDYuNjY2NyA1OSA0Ni42NjY3IDQ5LjMzMzNDNDYuNjY2NyAzOS42NjY3IDU0LjMyMzEgMzIgNjQgMzJaIiBmaWxsPSIjOUI5QkEwIi8+CjxwYXRoIGQ9Ik02NCA3MkM0Ny40MzE1IDcyIDM0IDU4LjU2ODUgMzQgNDJDMzQgMjUuNDMxNSA0Ny40MzE1IDEyIDY0IDEyQzgwLjU2ODUgMTIgOTQgMjUuNDMxNSA5NCA0MkM5NCA1OC41Njg1IDgwLjU2ODUgNzIgNjQgNzJaIiBmaWxsPSIjOUI5QkEwIi8+Cjwvc3ZnPgo=';
-                      }}
-                    />
+                  <div className="relative inline-block">
+                    <div className="w-32 h-32 border-2 border-gray-200 rounded-2xl overflow-hidden">
+                      <img
+                        src={previewUrl}
+                        alt="Package preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik02NCAzMkM3My42NzY5IDMyIDgxLjMzMzMgMzkuNjY2NyA4MS4zMzMzIDQ5LjMzMzNDODEuMzMzMyA1OSA3My42NzY5IDY2LjY2NjcgNjQgNjYuNjY2N0M1NC4zMjMxIDY2LjY2NjcgNDYuNjY2NyA1OSA0Ni42NjY3IDQ5LjMzMzNDNDYuNjY2NyAzOS42NjY3IDU0LjMyMzEgMzIgNjQgMzJaIiBmaWxsPSIjOUI5QkEwIi8+CjxwYXRoIGQ9Ik02NCA3MkM0Ny40MzE1IDcyIDM0IDU4LjU2ODUgMzQgNDJDMzQgMjUuNDMxNSA0Ny40MzE1IDEyIDY0IDEyQzgwLjU2ODUgMTIgOTQgMjUuNDMxNSA5NCA0MkM5NCA1OC41Njg1IDgwLjU2ODUgNzIgNjQgNzJaIiBmaWxsPSIjOUI5QkEwIi8+Cjwvc3ZnPgo=';
+                        }}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                    >
+                      <XMarkIcon className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               )}
