@@ -64,16 +64,52 @@ export const PackageModal: React.FC<PackageModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // If there's a selected file, convert it to base64 and set as image_url
-    if (selectedFile) {
-      const base64 = await convertToBase64(selectedFile);
+    try {
+      let imageUrl = formData.image_url;
+      
+      // If there's a selected file, upload it first
+      if (selectedFile) {
+        const base64 = await convertToBase64(selectedFile);
+        
+        // Upload base64 image to server
+        const uploadResponse = await fetch('http://localhost:8000/api/upload/base64', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            base64: base64,
+            filename: selectedFile.name
+          })
+        });
+        
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload image');
+        }
+        
+        const uploadData = await uploadResponse.json();
+        imageUrl = uploadData.data.url;
+      }
+      
       const submitData = {
         ...formData,
-        image_url: base64
+        image_url: imageUrl
       };
+      
       await onSubmit(submitData);
-    } else {
-      await onSubmit(formData);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      // Fallback to base64 if upload fails
+      if (selectedFile) {
+        const base64 = await convertToBase64(selectedFile);
+        const submitData = {
+          ...formData,
+          image_url: base64
+        };
+        await onSubmit(submitData);
+      } else {
+        await onSubmit(formData);
+      }
     }
   };
 

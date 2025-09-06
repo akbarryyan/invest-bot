@@ -18,6 +18,7 @@ const userRoutes = require('./routes/users');
 const packageRoutes = require('./routes/packages');
 const transactionRoutes = require('./routes/transactions');
 const adminRoutes = require('./routes/admin');
+const uploadRoutes = require('./routes/upload');
 
 // Create Express app
 const app = express();
@@ -31,6 +32,12 @@ app.use(cors({
   credentials: config.cors.credentials,
   methods: config.cors.methods,
   allowedHeaders: config.cors.allowedHeaders
+}));
+
+// CORS for static files
+app.use('/uploads', cors({
+  origin: config.cors.origins,
+  credentials: false
 }));
 
 // Rate limiting
@@ -48,8 +55,22 @@ if (config.server.env === 'development') {
   app.use(morgan('combined'));
 }
 
-// Static files
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// Static files with CORS headers
+app.use('/uploads', (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'false');
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+  
+  next();
+}, express.static(path.join(__dirname, '../uploads')));
 
 // Handle preflight requests
 app.options('*', cors());
@@ -70,6 +91,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/packages', packageRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

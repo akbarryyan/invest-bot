@@ -25,13 +25,11 @@ const PackageContent: React.FC<PackageContentProps> = ({
     isCreating,
     isUpdating,
     isDeleting,
-    error,
     pagination,
     fetchPackages,
     createPackage,
     updatePackage,
-    deletePackage,
-    clearError
+    deletePackage
   } = usePackages();
 
   // Modal states
