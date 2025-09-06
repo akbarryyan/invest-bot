@@ -92,7 +92,7 @@ export const usePackages = (): UsePackagesReturn => {
                    is_active: Boolean(pkg.is_active), // Convert 1/0 to true/false
                    price: safeParseFloat(pkg.price),
                    duration_days: safeParseInt(pkg.duration_days),
-                   daily_return: safeParseFloat(pkg.daily_return),
+                   daily_return: safeParseFloat(pkg.daily_return_amount || pkg.daily_return),
                  };
                });
                
